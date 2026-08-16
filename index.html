@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AK PACK FITNESS - Attendance Sign-In</title>
+
+  <!-- Google Fonts: Roboto -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <!-- React 18 & Babel Standalone (CDN) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    :root {
+      --app-bkg-color-1: #BFDDE8;
+      --app-bkg-color-2: #AABBE6;
+      --app-color-primary: #082676;
+      --app-color-white: #FFFFFF;
+      --border-radius: 12px;
+      --font-size-lg: 22px;
+      --font-size-md: 16px;
+      --font-size-sm: 13px;
+      --font-size-input: 32px;
+      --font-weight-reg: 400;
+      --font-weight-med: 500;
+      --font-weight-bld: 700;
+      --font-weight-blk: 900;
+      --box-shadow: 0 4px 15px rgba(8, 38, 118, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      font-size: var(--font-size-md);
+      font-weight: var(--font-weight-med);
+      background: linear-gradient(135deg, var(--app-bkg-color-1), var(--app-bkg-color-2));
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: #333;
+    }
+
+    button {
+      padding: 0;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .app-content {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+    }
+
+    .app-branding {
+      flex: 0 0 22%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app-branding__title {
+      font-size: 38px;
+      font-weight: var(--font-weight-blk);
+      color: var(--app-color-primary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+    }
+
+    .app-branding__subtitle {
+      font-size: 14px;
+      font-weight: var(--font-weight-med);
+      color: #3b5080;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    .app-controllers {
+      flex: 1;
+      position: relative;
+      padding: 10px 20px 40px;
+    }
+
+    .app-controllers__restart-btn {
+      position: absolute;
+      top: -65px;
+      left: 25px;
+      background: var(--app-color-white);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 10;
+    }
+
+    .app-controllers__timestamp {
+      position: absolute;
+      top: -60px;
+      right: 125px;
+      font-size: 14px;
+      font-weight: var(--font-weight-bld);
+      color: var(--app-color-primary);
+      background: rgba(255,255,255,0.6);
+      padding: 8px 14px;
+      border-radius: 20px;
+    }
+
+    .app-controllers__settings-btn {
+      position: absolute;
+      top: -60px;
+      right: 25px;
+      background: var(--app-color-white);
+      border: 1px solid rgba(8, 38, 118, 0.2);
+      color: var(--app-color-primary);
+      font-size: 13px;
+      font-weight: var(--font-weight-bld);
+      padding: 8px 14px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      z-index: 10;
+    }
+
+    .app-controllers__views {
+      height: 100%;
+    }
+
+    .app-controllers__loading {
+      position: absolute;
+      width: 100%;
+      bottom: 10px;
+      left: 0;
+      text-align: center;
+      padding: 10px 40px;
+    }
+
+    .view {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .view__top {
+      flex: 0 0 45%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .view__bottom {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      overflow-y: auto;
+    }
+
+    .module {
+      text-align: center;
+      width: 100%;
+    }
+
+    .module__title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-bld);
+      color: var(--app-color-primary);
+      margin-bottom: 16px;
+    }
+
+    .module__text-input {
+      border: solid 4px var(--app-color-primary);
+      background: var(--app-color-white);
+      border-radius: var(--border-radius);
+      position: relative;
+      max-width: 650px;
+      margin: 0 auto;
+      box-shadow: var(--box-shadow);
+    }
+
+    .user-search {
+      font-size: var(--font-size-input);
+      font-weight: var(--font-weight-blk);
+      width: 100%;
+      text-align: center;
+      line-height: 75px;
+      height: 75px;
+      border: none;
+      background: none;
+      outline: none;
+      text-transform: uppercase;
+      color: var(--app-color-primary);
+      padding: 0 60px 0 20px;
+    }
+
+    .clear-input {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+    }
+
+    .module__list {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 10px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .module--card {
+      border: solid 2px var(--app-color-primary);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--box-shadow);
+      background: var(--app-color-white);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .module--card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(8, 38, 118, 0.25);
+    }
+
+    .module--img {
+      width: 160px;
+      height: 160px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .member-name-tag {
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--app-color-primary);
+      padding: 4px;
+      width: 100%;
+      background: #f1f5fa;
+      border-top: 1px solid #ddd;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .class {
+      width: 220px;
+      min-height: 150px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .class__title {
+      font-size: 19px;
+      font-weight: var(--font-weight-bld);
+      color: var(--app-color-primary);
+      margin-bottom: 6px;
+    }
+
+    .class__time {
+      font-size: 14px;
+      font-weight: var(--font-weight-med);
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .class__details {
+      font-size: var(--font-size-sm);
+      color: #444;
+      line-height: 1.3;
+    }
+
+    .module--split {
+      display: flex;
+      flex-direction: row;
+      background: rgba(255, 255, 255, 0.85);
+      border: 2px solid var(--app-color-primary);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      max-width: 420px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .module__left {
+      flex: 1;
+      padding: 18px;
+    }
+
+    .module__right {
+      width: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #eef3f9;
+      border-left: 1px solid #d4dfec;
+    }
+
+    .confirm-btn-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 20px;
+    }
+
+    .confirm-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--box-shadow);
+      transition: transform 0.2s;
+    }
+
+    .confirm-btn:hover {
+      transform: scale(1.08);
+    }
+
+    .confirm-btn--cancel {
+      background: #ffebee;
+      border: 2px solid #e53935;
+    }
+
+    .confirm-btn--ok {
+      background: #e8f5e9;
+      border: 2px solid #43a047;
+    }
+
+    .loader-bar {
+      width: 100%;
+      height: 16px;
+      border-radius: 8px;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        var(--app-bkg-color-2),
+        var(--app-bkg-color-2) 11px,
+        var(--app-color-white) 10px,
+        var(--app-color-white) 20px
+      );
+      background-size: 28px 28px;
+      animation: move 0.6s linear infinite;
+    }
+
+    @keyframes move {
+      0% { background-position: 0 0; }
+      100% { background-position: 28px 0; }
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(3px);
+    }
+
+    .modal-card {
+      background: #fff;
+      padding: 28px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 540px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <!-- Hidden SVGs for Confirm and Cancel Icons -->
+  <svg style="display:none;">
+    <symbol id="icon-cancel" viewBox="0 0 56 56">
+      <path fill="#e53935" d="M28,56 C43.46,56 56,43.46 56,28 C56,12.54 43.46,0 28,0 C12.54,0 0,12.54 0,28 C0,43.46 12.54,56 28,56 Z M28,50 C15.85,50 6,40.15 6,28 C6,15.85 15.85,6 28,6 C40.15,6 50,15.85 50,28 C50,40.15 40.15,50 28,50 Z"/>
+      <polygon fill="#e53935" points="41 18 38 15 28 25 18 15 15 18 25 28 15 38 18 41 28 31 38 41 41 38 31 28"/>
+    </symbol>
+    <symbol id="icon-confirm" viewBox="0 0 61 46">
+      <path fill="none" stroke="#43a047" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" d="M6 23 L22 39 L55 7"/>
+    </symbol>
+  </svg>
+
+  <div id="root"></div>
+
+  <!-- React Code with Babel -->
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // --- Mock Data for Testing when no GAS URL is connected ---
+    const devMemberList = [
+      [101, "Rahul", "Sharma", ""],
+      [102, "Alex", "Paul", ""],
+      [103, "Sarah", "Connor", ""],
+      [104, "Vikram", "Menon", ""]
+    ];
+
+    const devClassList = [
+      {
+        id: "c1",
+        title: "HIIT Bootcamp",
+        start: new Date(Date.now() + 1800000).toISOString(),
+        end: new Date(Date.now() + 5400000).toISOString(),
+        details: "Trainer: <b>Anand K.</b><br/>High intensity functional conditioning"
+      },
+      {
+        id: "c2",
+        title: "Strength & Conditioning",
+        start: new Date(Date.now() + 7200000).toISOString(),
+        end: new Date(Date.now() + 10800000).toISOString(),
+        details: "Trainer: <b>Kavya M.</b><br/>Compound lifting & hypertrophy"
+      },
+      {
+        id: "c3",
+        title: "Mobility & Core",
+        start: new Date(Date.now() + 12600000).toISOString(),
+        end: new Date(Date.now() + 16200000).toISOString(),
+        details: "Trainer: <b>Rohit V.</b><br/>Joint health, flexibility, and core"
+      }
+    ];
+
+    // --- API Bridge Utility ---
+    const callGasApi = async (action, payload = {}) => {
+      const url = localStorage.getItem('ak_pack_gas_url') || '';
+      
+      // If no URL is saved, fallback to mock data
+      if (!url) {
+        await new Promise(r => setTimeout(r, 600)); // simulated latency
+        if (action === 'getMembers') {
+          const q = (payload.query || '').toLowerCase();
+          const col = payload.byType === 'id' ? 0 : 2;
+          return devMemberList.filter(m => m[col].toString().toLowerCase().includes(q));
+        }
+        if (action === 'getClasses') return devClassList;
+        if (action === 'setAttendance') return { success: true };
+        if (action === 'getImage') return { base64: null };
+        return {};
+      }
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action, ...payload })
+      });
+
+      const res = await response.json();
+      if (res.error) throw new Error(res.error);
+      return res;
+    };
+
+    // --- Helper for time display ---
+    const formatTime = (isoString) => {
+      if (!isoString) return '';
+      const d = new Date(isoString);
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
+
+    // --- TimeStamp Component ---
+    function LiveClock() {
+      const [now, setNow] = useState(new Date());
+      useEffect(() => {
+        const id = setInterval(() => setNow(new Date()), 1000);
+        return () => clearInterval(id);
+      }, []);
+
+      return (
+        <div className="app-controllers__timestamp">
+          {now.toLocaleDateString([], { month: 'short', day: 'numeric' })} • {now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+        </div>
+      );
+    }
+
+    // --- Settings Modal Component ---
+    function SettingsModal({ isOpen, onClose }) {
+      const [inputUrl, setInputUrl] = useState(localStorage.getItem('ak_pack_gas_url') || '');
+
+      if (!isOpen) return null;
+
+      const handleSave = () => {
+        localStorage.setItem('ak_pack_gas_url', inputUrl.trim());
+        onClose();
+      };
+
+      const handleClear = () => {
+        localStorage.removeItem('ak_pack_gas_url');
+        setInputUrl('');
+        onClose();
+      };
+
+      return (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <h2 style={{ color: 'var(--app-color-primary)', marginBottom: '8px' }}>Web App Settings</h2>
+            <p style={{ fontSize: '14px', color: '#666', marginBottom: '16px', lineHeight: '1.4' }}>
+              Paste your deployed <b>Google Apps Script Web App URL</b> (ending in <code>/exec</code>) below. If empty, the app will run in demo/simulation mode.
+            </p>
+            <input
+              type="text"
+              value={inputUrl}
+              onChange={(e) => setInputUrl(e.target.value)}
+              placeholder="https://script.google.com/macros/s/.../exec"
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '8px',
+                border: '1px solid #bbb',
+                fontSize: '13px',
+                marginBottom: '20px'
+              }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <button onClick={handleClear} style={{ color: '#d32f2f', fontSize: '13px', textDecoration: 'underline' }}>
+                Clear URL (Use Demo)
+              </button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: '6px', background: '#e0e0e0' }}>
+                  Cancel
+                </button>
+                <button onClick={handleSave} style={{ padding: '8px 20px', borderRadius: '6px', background: 'var(--app-color-primary)', color: '#fff', fontWeight: 'bold' }}>
+                  Save & Connect
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- Main App Component ---
+    function App() {
+      const [member, setMember] = useState(null);
+      const [gymClass, setGymClass] = useState(null);
+      const [memberList, setMemberList] = useState([]);
+      const [gymClassList, setGymClassList] = useState([]);
+      const [searchText, setSearchText] = useState('');
+      const [loading, setLoading] = useState(false);
+      const [notFound, setNotFound] = useState(false);
+      const [confirmed, setConfirmed] = useState(false);
+      const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+      const resetApp = () => {
+        setMember(null);
+        setGymClass(null);
+        setMemberList([]);
+        setGymClassList([]);
+        setSearchText('');
+        setNotFound(false);
+        setConfirmed(false);
+        setLoading(false);
+      };
+
+      const handleSearch = async (e) => {
+        e.preventDefault();
+        if (!searchText.trim()) return;
+
+        setLoading(true);
+        setNotFound(false);
+        setMemberList([]);
+
+        try {
+          const isNum = !isNaN(searchText.trim());
+          const results = await callGasApi('getMembers', {
+            byType: isNum ? 'id' : 'name',
+            query: searchText.trim()
+          });
+
+          if (results && results.length > 0) {
+            setMemberList(results);
+          } else {
+            setNotFound(true);
+          }
+        } catch (err) {
+          alert("Error finding members: " + err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const handleSelectMember = async (selectedMember) => {
+        setMember(selectedMember);
+        setLoading(true);
+        try {
+          const classes = await callGasApi('getClasses');
+          setGymClassList(classes || []);
+        } catch (err) {
+          alert("Error fetching classes: " + err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const handleSelectClass = (selectedClass) => {
+        setGymClass(selectedClass);
+      };
+
+      const handleFinalConfirm = async (confirmedChoice) => {
+        if (!confirmedChoice) {
+          setGymClass(null);
+          return;
+        }
+
+        setLoading(true);
+        try {
+          await callGasApi('setAttendance', {
+            memberId: member[0],
+            classId: gymClass.id
+          });
+          setConfirmed(true);
+          setTimeout(() => {
+            resetApp();
+          }, 3000);
+        } catch (err) {
+          alert("Failed to mark attendance: " + err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div className="app-content">
+          {/* Top Controls */}
+          {(member || gymClass) && (
+            <button className="app-controllers__restart-btn" onClick={resetApp} title="Restart">
+              <svg width="28px" height="28px"><use href="#icon-cancel" /></svg>
+            </button>
+          )}
+
+          <LiveClock />
+
+          <button className="app-controllers__settings-btn" onClick={() => setIsSettingsOpen(true)}>
+            ⚙️ Settings
+          </button>
+
+          {/* Branding Banner */}
+          <section className="app-branding">
+            <h1 className="app-branding__title">AK PACK FITNESS</h1>
+            <div className="app-branding__subtitle">Class Attendance & Check-In Portal</div>
+          </section>
+
+          {/* Main Flow Container */}
+          <div className="app-controllers">
+            <div className="app-controllers__views">
+
+              {/* STEP 1: Search and Choose Member */}
+              {!member && (
+                <div className="view">
+                  <div className="view__top">
+                    <div className="module">
+                      <div className="module__title">Enter your LAST NAME or MEMBER ID:</div>
+                      <div className="module__text-input">
+                        <form onSubmit={handleSearch}>
+                          <input
+                            type="text"
+                            className="user-search"
+                            placeholder="TAP HERE TO TYPE"
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
+                            autoFocus
+                          />
+                        </form>
+                        {searchText && (
+                          <button className="clear-input" onClick={() => setSearchText('')}>
+                            <svg width="34px" height="34px"><use href="#icon-cancel" /></svg>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+              
