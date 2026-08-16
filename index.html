@@ -1,1 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AK PACK FITNESS - Attendance Check-In</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --app-bkg-color-1: #BFDDE8;
+      --app-bkg-color-2: #AABBE6;
+      --app-color-primary: #082676;
+      --app-color-white: #FFFFFF;
+      --border-radius: 12px;
+      --box-shadow: 0 4px 15px rgba(8, 38, 118, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, var(--app-bkg-color-1), var(--app-bkg-color-2));
+      min-height: 100vh;
+      color: #333;
+    }
+
+    button {
+      padding: 0;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .app-content {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      width: 100vw;
+      position: relative;
+    }
+
+    .app-branding {
+      padding: 30px 20px 10px;
+      text-align: center;
+    }
+
+    .app-branding__title {
+      font-size: 36px;
+      font-weight: 900;
+      color: var(--app-color-primary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .app-branding__subtitle {
+      font-size: 14px;
+      font-weight: 500;
+      color: #3b5080;
+      margin-top: 4px;
+    }
+
+    .top-controls {
+      position: absolute;
+      top: 20px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 25px;
+      z-index: 10;
+    }
+
+    .pill-btn {
+      background: var(--app-color-white);
+      border: 1px solid rgba(8, 38, 118, 0.2);
+      color: var(--app-color-primary);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .circle-btn {
+      background: var(--app-color-white);
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      font-size: 18px;
+      font-weight: bold;
+      color: #e53935;
+    }
+
+    .app-controllers {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 20px 40px;
+    }
+
+    .view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .module {
+      text-align: center;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .module__title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--app-color-primary);
+      margin-bottom: 16px;
+    }
+
+    .module__text-input {
+      border: solid 4px var(--app-color-primary);
+      background: var(--app-color-white);
+      border-radius: var(--border-radius);
+      position: relative;
+      max-width: 600px;
+      margin: 0 auto 25px;
+      box-shadow: var(--box-shadow);
+    }
+
+    .user-search {
+      font-size: 26px;
+      font-weight: 900;
+      width: 100%;
+      text-align: center;
+      height: 65px;
+      border: none;
+      outline: none;
+      text-transform: uppercase;
+      color: var(--app-color-primary);
+      padding: 0 50px 0 20px;
+    }
+
+    .clear-input {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #e53935;
+    }
+
+    .module__list {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 10px;
+    }
+
+    .module--card {
+      border: solid 2px var(--app-color-primary);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--box-shadow);
+      background: var(--app-color-white);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .module--card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(8, 38, 118, 0.25);
+    }
+
+    .module--img {
+      width: 150px;
+      height: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .member-name-tag {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--app-color-primary);
+      padding: 6px;
+      width: 100%;
+      background: #f1f5fa;
+      border-top: 1px solid #ddd;
+      text-align: center;
+    }
+
+    .class-card {
+      width: 220px;
+      min-height: 140px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .class__title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--app-color-primary);
+      margin-bottom: 6px;
+    }
+
+    .class__time {
+      font-size: 13px;
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .class__details {
+      font-size: 13px;
+      color: #444;
+      line-height: 1.3;
+    }
+
+    .module--split {
+      display: flex;
+      flex-direction: row;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid var(--app-color-primary);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      max-width: 420px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .module__left {
+      flex: 1;
+      padding: 16px;
+    }
+
+    .module__right {
+      width: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #eef3f9;
+      border-left: 1px solid #d4dfec;
+    }
+
+    .confirm-btn-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 25px;
+    }
+
+    .confirm-btn {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--box-shadow);
+      font-size: 28px;
+      transition: transform 0.15s;
+    }
+
+    .confirm-btn:hover {
+      transform: scale(1.08);
+    }
+
+    .confirm-btn--cancel {
+      background: #ffebee;
+      border: 2px solid #e53935;
+      color: #e53935;
+    }
+
+    .confirm-btn--ok {
+      background: #e8f5e9;
+      border: 2px solid #43a047;
+      color: #43a047;
+    }
+
+    .loader-bar {
+      width: 100%;
+      height: 14px;
+      border-radius: 7px;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        var(--app-bkg-color-2),
+        var(--app-bkg-color-2) 11px,
+        var(--app-color-white) 10px,
+        var(--app-color-white) 20px
+      );
+      background-size: 28px 28px;
+      animation: move 0.6s linear infinite;
+    }
+
+    @keyframes move {
+      0% { background-position: 0 0; }
+      100% { background-position: 28px 0; }
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-card {
+      background: #fff;
+      padding: 24px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 520px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-content">
+    <div class="top-controls">
+      <div id="restartContainer"></div>
+      <div style="display:flex; gap:10px; align-items:center; margin-left:auto;">
+        <div id="clockContainer" class="pill-btn"></div>
+        <button class="pill-btn" onclick="openSettings()">⚙️ Settings</button>
+      </div>
+    </div>
+
+    <section class="app-branding">
+      <h1 class="app-branding__title">AK PACK FITNESS</h1>
+      <div class="app-branding__subtitle">Class Attendance & Check-In Portal</div>
+    </section>
+
+    <div class="app-controllers">
+      <div id="viewContainer" class="view"></div>
+      <div id="loadingIndicator" style="display:none; padding: 10px 40px; margin-top: auto;">
+        <div class="loader-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal-overlay">
+    <div class="modal-card">
+      <h2 style="color:var(--app-color-primary); margin-bottom:8px;">Web App Settings</h2>
+      <p style="font-size:13px; color:#666; margin-bottom:16px;">
+        Paste your deployed <b>Google Apps Script Web App URL</b> (ending in <code>/exec</code>) below. If empty, the app runs in demo mode.
+      </p>
+      <input
+        id="scriptUrlInput"
+        type="text"
+        placeholder="https://script.google.com/macros/s/.../exec"
+        style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc; font-size:13px; margin-bottom:18px;"
+      />
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <button onclick="clearSettings()" style="color:#d32f2f; font-size:13px; text-decoration:underline;">
+          Use Demo Mode
+        </button>
+        <div style="display:flex; gap:8px;">
+          <button onclick="closeSettings()" style="padding:8px 14px; border-radius:4px; background:#eee;">Cancel</button>
+          <button onclick="saveSettings()" style="padding:8px 16px; border-radius:4px; background:var(--app-color-primary); color:#fff; font-weight:bold;">
+            Save & Connect
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State Variables
+    let selectedMember = null;
+    let selectedClass = null;
+    let memberList = [];
+    let classList = [];
+    let notFound = false;
+    let confirmed = false;
+
+    const devMembers = [
+      [101, "Rahul", "Sharma"],
+      [102, "Alex", "Paul"],
+      [103, "Sarah", "Connor"],
+      [104, "Vikram", "Menon"]
+    ];
+
+    const devClasses = [
+      { id: "c1", title: "HIIT Bootcamp", start: "07:00 AM", end: "08:00 AM", details: "Trainer: <b>Anand K.</b><br/>High intensity functional conditioning" },
+      { id: "c2", title: "Strength & Power", start: "08:30 AM", end: "09:30 AM", details: "Trainer: <b>Kavya M.</b><br/>Compound lifting & hypertrophy" },
+      { id: "c3", title: "Mobility & Core", start: "05:30 PM", end: "06:30 PM", details: "Trainer: <b>Rohit V.</b><br/>Joint health & functional core" }
+    ];
+
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clockContainer').innerText =
+        now.toLocaleDateString([], { month: 'short', day: 'numeric' }) + " • " +
+        now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // GAS API Bridge
+    async function callApi(action, payload = {}) {
+      const url = localStorage.getItem('ak_pack_gas_url') || '';
+      if (!url) {
+        await new Promise(r => setTimeout(r, 400));
+        if (action === 'getMembers') {
+          const q = (payload.query || '').toLowerCase();
+          const col = payload.byType === 'id' ? 0 : 2;
+          return devMembers.filter(m => m[col].toString().toLowerCase().includes(q));
+        }
+        if (action === 'getClasses') return devClasses;
+        if (action === 'setAttendance') return { success: true };
+        return {};
+      }
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action, ...payload })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      return data;
+    }
+
+    function setLoading(isLoading) {
+      document.getElementById('loadingIndicator').style.display = isLoading ? 'block' : 'none';
+    }
+
+    function resetApp() {
+      selectedMember = null;
+      selectedClass = null;
+      memberList = [];
+      classList = [];
+      notFound = false;
+      confirmed = false;
+      render();
+    }
+
+    async function handleSearch(e) {
+      e.preventDefault();
+      const val = document.getElementById('searchInput').value.trim();
+      if (!val) return;
+
+      setLoading(true);
+      notFound = false;
+      memberList = [];
+      render();
+
+      try {
+        const isNum = !isNaN(val);
+        const results = await callApi('getMembers', { byType: isNum ? 'id' : 'name', query: val });
+        if (results && results.length > 0) {
+          memberList = results;
+        } else {
+          notFound = true;
+        }
+      } catch (err) {
+        alert("Search failed: " + err.message);
+      } finally {
+        setLoading(false);
+        render();
+      }
+    }
+
+    async function chooseMember(index) {
+      selectedMember = memberList[index];
+      setLoading(true);
+      render();
+
+      try {
+        const classes = await callApi('getClasses');
+        classList = classes || [];
+      } catch (err) {
+        alert("Could not load classes: " + err.message);
+      } finally {
+        setLoading(false);
+        render();
+      }
+    }
+
+    function chooseClass(index) {
+      selectedClass = classList[index];
+      render();
+    }
+
+    async function submitAttendance(isConfirmed) {
+      if (!isConfirmed) {
+        selectedClass = null;
+        render();
+        return;
+      }
+
+      setLoading(true);
+      try {
+        await callApi('setAttendance', {
+          memberId: selectedMember[0],
+          classId: selectedClass.id
+        });
+        confirmed = true;
+        render();
+        setTimeout(resetApp, 3000);
+      } catch (err) {
+        alert("Attendance submission error: " + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // Dynamic View Renderer
+    function render() {
+      const container = document.getElementById('viewContainer');
+      const restartContainer = document.getElementById('restartContainer');
+
+      // Restart Button Visibility
+      if (selectedMember || selectedClass) {
+        restartContainer.innerHTML = `<button class="circle-btn" onclick="resetApp()" title="Start Over">✕</button>`;
+      } else {
+        restartContainer.innerHTML = '';
+      }
+
+      // STEP 1: Search and select member
+      if (!selectedMember) {
+        let membersHtml = '';
+        if (memberList.length > 0) {
+          membersHtml = `
+            <div class="module" style="margin-top:20px;">
+              <div class="module__title">Select Your Profile:</div>
+              <div class="module__list">
+                ${memberList.map((m, idx) => `
+                  <div class="module--card module--img" onclick="chooseMember(${idx})">
+                    <div style="flex:1; display:flex; align-items:center; justify-content:center; font-size:36px;">👤</div>
+                    <div class="member-name-tag">#${m[0]} ${m[1]} ${m[2]}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>`;
+        }
+
+        let notFoundHtml = notFound ? `<div class="module__title" style="color:#d32f2f; margin-top:20px;">No member found. Please try again.</div>` : '';
+
+        container.innerHTML = `
+          <div class="module">
+            <div class="module__title">Enter your LAST NAME or MEMBER ID:</div>
+            <form class="module__text-input" onsubmit="handleSearch(event)">
+              <input id="searchInput" class="user-search" placeholder="TAP HERE TO TYPE" autofocus />
+              <button type="button" class="clear-input" onclick="document.getElementById('searchInput').value=''; document.getElementById('searchInput').focus();">✕</button>
+            </form>
+            ${notFoundHtml}
+            ${membersHtml}
+          </div>
+        `;
+        return;
+      }
+
+      // STEP 2: Choose Class
+      if (selectedMember && !selectedClass) {
+        container.innerHTML = `
+          <div class="module">
+            <div class="module__title">Welcome, ${selectedMember[1]}! Select Your Class Today:</div>
+            <div class="module__list">
+              ${classList.length > 0 ? classList.map((c, idx) => `
+                <div class="module--card class-card" onclick="chooseClass(${idx})">
+                  <div class="class__title">${c.title}</div>
+                  <div class="class__time">${c.start} - ${c.end}</div>
+                  <div class="class__details">${c.details}</div>
+                </div>
+              `).join('') : '<div class="class__time">No classes scheduled for today.</div>'}
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // STEP 3: Confirm Attendance
+      if (selectedMember && selectedClass) {
+        if (confirmed) {
+          container.innerHTML = `
+            <div class="module">
+              <div class="module__title" style="font-size:30px; color:#2e7d32;">✓ Check-In Successful!</div>
+              <p style="font-size:18px; color:var(--app-color-primary); margin-top:10px;">
+                Have a great workout at <b>AK PACK FITNESS</b>!
+              </p>
+            </div>
+          `;
+        } else {
+          container.innerHTML = `
+            <div class="module">
+              <div class="module__title">Confirm Your Class Check-in:</div>
+              <div class="module--split">
+                <div class="module__left">
+                  <div class="class__title">${selectedClass.title}</div>
+                  <div class="class__time">${selectedClass.start} - ${selectedClass.end}</div>
+                  <div class="class__details">${selectedClass.details}</div>
+                </div>
+                <div class="module__right">
+                  <div style="text-align:center;">
+                    <div style="font-size:40px;">👤</div>
+                    <div style="font-size:13px; font-weight:bold; color:var(--app-color-primary); margin-top:4px;">
+                      ${selectedMember[1]} ${selectedMember[2]}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="confirm-btn-wrapper">
+                <button class="confirm-btn confirm-btn--cancel" onclick="submitAttendance(false)" title="Cancel">✕</button>
+                <button class="confirm-btn confirm-btn--ok" onclick="submitAttendance(true)" title="Confirm">✓</button>
+              </div>
+            </div>
+          `;
+        }
+      }
+    }
+
+    // Modal Control Functions
+    function openSettings() {
+      document.getElementById('scriptUrlInput').value = localStorage.getItem('ak_pack_gas_url') || '';
+      document.getElementById('settingsModal').style.display = 'flex';
+    }
+
+    function closeSettings() {
+      document.getElementById('settingsModal').style.display = 'none';
+    }
+
+    function saveSettings() {
+      const url = document.getElementById('scriptUrlInput').value.trim();
+      localStorage.setItem('ak_pack_gas_url', url);
+      closeSettings();
+      resetApp();
+    }
+
+    function clearSettings() {
+      localStorage.removeItem('ak_pack_gas_url');
+      document.getElementById('scriptUrlInput').value = '';
+      closeSettings();
+      resetApp();
+    }
+
+    // Initial mount
+    render();
+  </script>
+</body>
+</html>
